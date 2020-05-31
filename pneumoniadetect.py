@@ -41,13 +41,13 @@ def global_test(dir_models, dir_test_image):
     labels = np.asarray(labels)
     average_accuracy = [0] * len(labels)
 
-    out = h5py.File("pneumonia/tmptest.h5", "a")
+    out = h5py.File("/pneumonia/tmptest.h5", "a")
     out.create_dataset("imagesTmp", data=images)
     out.close()
 
     dset = h5py.File("/pneumonia/tmptest.h5", "r")
     imagesTmp = dset["imagesTmp"][:]
-    os.remove("/content/gdrive/My Drive/pneumonia/tmptest.h5")
+    os.remove("/pneumonia/tmptest.h5")
 
     for file_model in os.listdir(dir_models):
         num_mod += 1
@@ -119,13 +119,13 @@ def global_predict(dir_models, dir_image):
             img = 2 * (data.reshape((img.size[0], img.size[1], 3)).astype(np.float32) / 255) - 1
             images.append(img)
 
-    out = h5py.File("/content/gdrive/My Drive/pneumonia/tmptest.h5", "a")
+    out = h5py.File("/pneumonia/tmptest.h5", "a")
     out.create_dataset("imagesTmp", data=images)
     out.close()
 
-    dset = h5py.File("/content/gdrive/My Drive/pneumonia/tmptest.h5", "r")
+    dset = h5py.File("/pneumonia/tmptest.h5", "r")
     imagesTmp = dset["imagesTmp"][:]
-    os.remove("/content/gdrive/My Drive/pneumonia/tmptest.h5")
+    os.remove("/pneumonia/tmptest.h5")
 
     for file_model in os.listdir(dir_models):
         print("==================================================\nCurrent model is: ", file_model)
