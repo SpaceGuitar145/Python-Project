@@ -1,16 +1,25 @@
 import numpy as np
-from keras import models
+import tensorflow as tf
+import keras
+from keras import models, backend
 import os
 import h5py
 from PIL import Image
 import matplotlib.pyplot as plt
 
+try:
+	sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(log_device_placement=True))
+	tf.compat.v1.keras.backend.set_session(sess)
+except:
+	print("Can't use the graphic card. Not found.")
+
+
 size = 199
 epochs = 3
-modelsDir = "/pneumonia/models/"
+modelsDir = "/home/push/Downloads/Python-Project/pneumonia/models"
 
 
-def global_test(dir_models, dir_test_image):
+def global_test(modelsDir, dir_test_image):
     models_stat = []
     num_mod = 0
 
@@ -41,23 +50,23 @@ def global_test(dir_models, dir_test_image):
     labels = np.asarray(labels)
     average_accuracy = [0] * len(labels)
 
-    out = h5py.File("/pneumonia/tmptest.h5", "a")
+    out = h5py.File("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5", "a")
     out.create_dataset("imagesTmp", data=images)
     out.close()
 
-    dset = h5py.File("/pneumonia/tmptest.h5", "r")
+    dset = h5py.File("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5", "r")
     imagesTmp = dset["imagesTmp"][:]
-    os.remove("/pneumonia/tmptest.h5")
+    os.remove("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5")
 
-    for file_model in os.listdir(dir_models):
+    for file_model in os.listdir(modelsDir):
         num_mod += 1
 
-        dir_model = dir_models + "/" + file_model
+        model_name = modelsDir + "/" + file_model
         name = file_model[:-3]
         model_stat = [name]
 
-        model = models.load_model(dir_model)
-        predictions = model.predict(imagesTmp)
+        model = models.load_model(model_name)
+        predictions = model.predict(imagesTmp, batch_size=1)
         predictions = predictions.reshape(1, -1)[0]
 
         accuracy_array = []
@@ -98,20 +107,22 @@ def global_test(dir_models, dir_test_image):
     ax.set_ylabel("Accuracy")
     ax.set_xlabel("Models")
 
+    plt.savefig("test_stat.png")
 
-global_test(modelsDir, "/pneumonia/test/")
+
+# global_test(modelsDir, "/pneumonia/test/")
 
 
-def global_predict(dir_models, dir_image):
+def global_predict(modelsDir, dir_name):
     images_stat = []
     num_mod = 0
 
     name_image = []
     images = []
 
-    for files in os.listdir(dir_image):
+    for files in os.listdir(dir_name):
         if files.endswith('.jpg') or files.endswith('.jpeg'):
-            imagePath = dir_image + files
+            imagePath = dir_name + files
             name_image.append(files)
             img = Image.open(imagePath)
             img = img.resize((size, size)).convert("RGB")
@@ -119,21 +130,21 @@ def global_predict(dir_models, dir_image):
             img = 2 * (data.reshape((img.size[0], img.size[1], 3)).astype(np.float32) / 255) - 1
             images.append(img)
 
-    out = h5py.File("/pneumonia/tmptest.h5", "a")
+    out = h5py.File("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5", "a")
     out.create_dataset("imagesTmp", data=images)
     out.close()
 
-    dset = h5py.File("/pneumonia/tmptest.h5", "r")
+    dset = h5py.File("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5", "r")
     imagesTmp = dset["imagesTmp"][:]
-    os.remove("/pneumonia/tmptest.h5")
+    os.remove("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5")
 
-    for file_model in os.listdir(dir_models):
-        print("==================================================\nCurrent model is: ", file_model)
+    for file_model in os.listdir(modelsDir):
+        # print("==================================================\nCurrent model is: ", file_model)
         num_mod += 1
-        dir_model = dir_models + "/" + file_model
+        model_name = modelsDir + "/" + file_model
 
-        model = models.load_model(dir_model)
-        predictions = model.predict(imagesTmp)
+        model = models.load_model(model_name)
+        predictions = model.predict(imagesTmp, batch_size=1)
         predictions = predictions.reshape(1, -1)[0]
 
         accuracy_array = []
@@ -141,7 +152,7 @@ def global_predict(dir_models, dir_image):
         for i in range(0, len(predictions), 2):
             accuracy_array.append(predictions[i + 1])
         images_stat.append(accuracy_array)
-        print(accuracy_array)
+        # print(accuracy_array)
     result = []
 
     for i in range(len(name_image)):
@@ -149,7 +160,12 @@ def global_predict(dir_models, dir_image):
         for j in range(num_mod):
             sum_ac += images_stat[j][i]
         result.append([name_image[i], sum_ac / num_mod * 100])
-    print(result)
+    return result
+    # print(result)
 
 
-global_predict(modelsDir, "/pneumonia/predict/")
+# if __name__ == '__main__':
+#     global_test(modelsDir, dir_name)
+#     global_predict(modelsDir, dir_name)
+
+# global_predict(modelsDir, "/pneumonia/predict/")
