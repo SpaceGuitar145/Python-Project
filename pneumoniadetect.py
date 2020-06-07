@@ -8,15 +8,14 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 try:
-	sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(log_device_placement=True))
-	tf.compat.v1.keras.backend.set_session(sess)
+    sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(log_device_placement=True))
+    tf.compat.v1.keras.backend.set_session(sess)
 except:
-	print("Can't use the graphic card. Not found.")
-
+    print("Can't use the graphic card. Not found.")
 
 size = 199
 epochs = 3
-modelsDir = "/home/push/Downloads/Python-Project/pneumonia/models"
+modelsDir = "/home/valera/pneumonia/models"
 
 
 def global_test(modelsDir, dir_test_image):
@@ -50,13 +49,13 @@ def global_test(modelsDir, dir_test_image):
     labels = np.asarray(labels)
     average_accuracy = [0] * len(labels)
 
-    out = h5py.File("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5", "a")
+    out = h5py.File("/home/valera/pneumonia/tmptest.h5", "a")
     out.create_dataset("imagesTmp", data=images)
     out.close()
 
-    dset = h5py.File("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5", "r")
+    dset = h5py.File("/home/valera/pneumonia/tmptest.h5", "r")
     imagesTmp = dset["imagesTmp"][:]
-    os.remove("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5")
+    os.remove("/home/valera/pneumonia/tmptest.h5")
 
     for file_model in os.listdir(modelsDir):
         num_mod += 1
@@ -109,10 +108,6 @@ def global_test(modelsDir, dir_test_image):
 
     plt.savefig("test_stat.png")
 
-
-# global_test(modelsDir, "/pneumonia/test/")
-
-
 def global_predict(modelsDir, dir_name):
     images_stat = []
     num_mod = 0
@@ -130,13 +125,13 @@ def global_predict(modelsDir, dir_name):
             img = 2 * (data.reshape((img.size[0], img.size[1], 3)).astype(np.float32) / 255) - 1
             images.append(img)
 
-    out = h5py.File("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5", "a")
+    out = h5py.File("/home/valera/pneumonia/tmptest.h5", "a")
     out.create_dataset("imagesTmp", data=images)
     out.close()
 
-    dset = h5py.File("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5", "r")
+    dset = h5py.File("/home/valera/pneumonia/tmptest.h5", "r")
     imagesTmp = dset["imagesTmp"][:]
-    os.remove("/home/push/Downloads/Python-Project/pneumonia/tmptest.h5")
+    os.remove("/home/valera/pneumonia/tmptest.h5")
 
     for file_model in os.listdir(modelsDir):
         # print("==================================================\nCurrent model is: ", file_model)
@@ -161,11 +156,4 @@ def global_predict(modelsDir, dir_name):
             sum_ac += images_stat[j][i]
         result.append([name_image[i], sum_ac / num_mod * 100])
     return result
-    # print(result)
 
-
-# if __name__ == '__main__':
-#     global_test(modelsDir, dir_name)
-#     global_predict(modelsDir, dir_name)
-
-# global_predict(modelsDir, "/pneumonia/predict/")
