@@ -1,10 +1,8 @@
 import numpy as np
 import tensorflow as tf
-import keras
+from PIL import Image
 from keras import models, backend
 import os
-import h5py
-from PIL import Image
 import matplotlib.pyplot as plt
 
 try:
@@ -14,19 +12,14 @@ except:
     print("Can't use the graphic card. Not found.")
 
 size = 199
-epochs = 3
-modelsDir = "/home/valera/pneumonia/models"
+modelsDir = "pneumonia/models/"
 
 
-def global_test(modelsDir, dir_test_image):
-    models_stat = []
-    num_mod = 0
-
-    labels = []
-    images = []
-
-    for nextDirectory in os.listdir(dir_test_image):
+def processingImage(directory):
+    images, imageTitles, labels = [], [], []
+    for nextDirectory in os.listdir(directory):
         if not nextDirectory.startswith("."):
+            print("next dir", nextDirectory)
             if nextDirectory in "NORMAL":
                 label = 0
             elif nextDirectory in "PNEUMONIA":
@@ -34,28 +27,42 @@ def global_test(modelsDir, dir_test_image):
             else:
                 label = 2
 
-            currentDirectory = dir_test_image + nextDirectory
-            if not currentDirectory.startswith("."):
-                for files in os.listdir(currentDirectory):
-                    if files.endswith('.jpg') or files.endswith('.jpeg'):
-                        imagePath = currentDirectory + "/" + files
-                        img = Image.open(imagePath)
-                        img = img.resize((size, size)).convert("RGB")
-                        data = np.array(img.getdata())
-                        img = 2 * (data.reshape((img.size[0], img.size[1], 3)).astype(np.float32) / 255) - 1
-                        images.append(img)
-                        labels.append(label)
+            currentDirectory = directory + nextDirectory
+            dirs = directory
+            if currentDirectory.endswith(".jpg") or currentDirectory.endswith(".jpeg"):
+                print("Dir1", dirs)
+            else:
+                dirs = currentDirectory
+                print("Dir2", dirs)
 
+            for files in os.listdir(dirs):
+                if files.endswith(".jpg") or files.endswith(".jpeg"):
+                    imagePath = dirs + "/" + files
+                    imageTitles.append(files)
+
+                    img = Image.open(imagePath)
+                    img = img.resize((size, size)).convert("RGB")
+                    data = np.array(img.getdata())
+                    img = 2 * (data.reshape((img.size[0], img.size[1], 3)) / 255) - 1
+                    images.append(img)
+                    labels.append(label)
+                else:
+                    print("No such file extension")
+            if currentDirectory.endswith(".jpg") or currentDirectory.endswith(".jpeg"):
+                break
+
+    images = np.asarray(images)
     labels = np.asarray(labels)
+    return imageTitles, images, labels
+
+
+def global_test(modelsDir, dir_test_image):
+    models_stat = []
+    num_mod = 0
+
+    _, images, labels = processingImage(dir_test_image)
+
     average_accuracy = [0] * len(labels)
-
-    out = h5py.File("/home/valera/pneumonia/tmptest.h5", "a")
-    out.create_dataset("imagesTmp", data=images)
-    out.close()
-
-    dset = h5py.File("/home/valera/pneumonia/tmptest.h5", "r")
-    imagesTmp = dset["imagesTmp"][:]
-    os.remove("/home/valera/pneumonia/tmptest.h5")
 
     for file_model in os.listdir(modelsDir):
         num_mod += 1
@@ -65,7 +72,7 @@ def global_test(modelsDir, dir_test_image):
         model_stat = [name]
 
         model = models.load_model(model_name)
-        predictions = model.predict(imagesTmp, batch_size=1)
+        predictions = model.predict(images, batch_size=1)
         predictions = predictions.reshape(1, -1)[0]
 
         accuracy_array = []
@@ -105,41 +112,21 @@ def global_test(modelsDir, dir_test_image):
     ax.bar(x_data, y_data, color='#539caf', align='center')
     ax.set_ylabel("Accuracy")
     ax.set_xlabel("Models")
-
     plt.savefig("test_stat.png")
+
 
 def global_predict(modelsDir, dir_name):
     images_stat = []
     num_mod = 0
 
-    name_image = []
-    images = []
-
-    for files in os.listdir(dir_name):
-        if files.endswith('.jpg') or files.endswith('.jpeg'):
-            imagePath = dir_name + files
-            name_image.append(files)
-            img = Image.open(imagePath)
-            img = img.resize((size, size)).convert("RGB")
-            data = np.array(img.getdata())
-            img = 2 * (data.reshape((img.size[0], img.size[1], 3)).astype(np.float32) / 255) - 1
-            images.append(img)
-
-    out = h5py.File("/home/valera/pneumonia/tmptest.h5", "a")
-    out.create_dataset("imagesTmp", data=images)
-    out.close()
-
-    dset = h5py.File("/home/valera/pneumonia/tmptest.h5", "r")
-    imagesTmp = dset["imagesTmp"][:]
-    os.remove("/home/valera/pneumonia/tmptest.h5")
+    imageTitles, images, _ = processingImage(dir_name)
 
     for file_model in os.listdir(modelsDir):
-        # print("==================================================\nCurrent model is: ", file_model)
         num_mod += 1
         model_name = modelsDir + "/" + file_model
 
         model = models.load_model(model_name)
-        predictions = model.predict(imagesTmp, batch_size=1)
+        predictions = model.predict(images, batch_size=1)
         predictions = predictions.reshape(1, -1)[0]
 
         accuracy_array = []
@@ -147,13 +134,11 @@ def global_predict(modelsDir, dir_name):
         for i in range(0, len(predictions), 2):
             accuracy_array.append(predictions[i + 1])
         images_stat.append(accuracy_array)
-        # print(accuracy_array)
-    result = []
 
-    for i in range(len(name_image)):
+    result = []
+    for i in range(len(imageTitles)):
         sum_ac = 0
         for j in range(num_mod):
             sum_ac += images_stat[j][i]
-        result.append([name_image[i], sum_ac / num_mod * 100])
+        result.append([imageTitles[i], sum_ac / num_mod * 100])
     return result
-

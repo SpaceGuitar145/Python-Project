@@ -6,7 +6,7 @@ from PyQt5.QtCore import QSize, QTimer, QRunnable, QThreadPool, pyqtSlot
 from PyQt5.QtGui import QMovie, QPixmap, QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QFrame, QLabel, QWidget, QFileDialog, QTableWidget, \
     QTableWidgetItem, QVBoxLayout, QAbstractItemView
-from pneumoniadetect import global_test, global_predict, modelsDir
+from pneumoniadetect import global_test , modelsDir, global_predict
 
 
 class MainWindow(QMainWindow):
@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
 
         self.frame = QFrame(self)
         self.frame.setFrameShape(QFrame.StyledPanel)
-        self.frame.setLineWidth(0.6)
+        self.frame.setLineWidth(1)
         self.frame.setFixedSize(205, 600)
         self.frame.setStyleSheet("background-color: #254059")
 
@@ -236,7 +236,7 @@ class MainWindow(QMainWindow):
                                     'young children, people older than age 65, and people with health problems or '
                                     'weakened immune systems.')
         self.pneumonia_info.setGeometry(10, 90, 190, 310)
-        self.pneumonia_info.setFont(QFont('Roboto', 10.5))
+        self.pneumonia_info.setFont(QFont('Roboto', 10))
         self.pneumonia_info.setStyleSheet('background-color: #254059;')
         self.pneumonia_info.setAlignment(QtCore.Qt.AlignCenter)
 
