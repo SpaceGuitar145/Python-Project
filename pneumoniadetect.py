@@ -96,12 +96,10 @@ def global_test(modelsDir, dir_test_image):
                     accuracy_array.append(predictions[i])
                     average_accuracy[x] += predictions[i]
 
-        model_stat.append(np.sum(accuracy_array) / len(accuracy_array) * 100)
+        model_stat.append(np.mean(accuracy_array) * 100)
         models_stat.append(model_stat)
 
-    for i in range(len(average_accuracy)):
-        average_accuracy[i] = average_accuracy[i] / num_mod
-    models_stat.append(["Average", np.sum(average_accuracy) / len(average_accuracy) * 100])
+    models_stat.append(["Average", np.mean(average_accuracy) / num_mod * 100])
 
     x_data = []
     y_data = []
@@ -137,8 +135,7 @@ def global_predict(modelsDir, dir_name):
 
     result = []
     for i in range(len(imageTitles)):
-        sum_ac = 0
-        for j in range(num_mod):
-            sum_ac += images_stat[j][i]
-        result.append([imageTitles[i], sum_ac / num_mod * 100])
+        result.append([imageTitles[i], np.mean([images_stat[k][i] for k in range(len(images_stat))]) * 100])
     return result
+
+print(global_predict("/home/andrei/ARCHIVE/proj/models", "/home/andrei/ARCHIVE/proj/predict/"))
