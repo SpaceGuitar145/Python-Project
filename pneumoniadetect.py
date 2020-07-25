@@ -138,4 +138,6 @@ def global_predict(modelsDir, dir_name):
         result.append([imageTitles[i], np.mean([images_stat[k][i] for k in range(len(images_stat))]) * 100])
     return result
 
-print(global_predict("/home/andrei/ARCHIVE/proj/models", "/home/andrei/ARCHIVE/proj/predict/"))
+
+print(global_predict("/home/push/Documents/GitHub/Python-Project-Pneumonia-Detect/pneumonia/models/",
+                     "/home/push/Documents/GitHub/Python-Project-Pneumonia-Detect/pneumonia/predict/"))

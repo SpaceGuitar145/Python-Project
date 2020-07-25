@@ -4,8 +4,7 @@ from os.path import expanduser
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSize, QTimer, QRunnable, QThreadPool, pyqtSlot
 from PyQt5.QtGui import QMovie, QPixmap, QIcon, QFont
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QFrame, QLabel, QWidget, QFileDialog, QTableWidget, \
-    QTableWidgetItem, QVBoxLayout, QAbstractItemView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QFrame, QLabel, QWidget, QFileDialog, QTableWidget, QTableWidgetItem, QVBoxLayout, QAbstractItemView
 from pneumoniadetect import global_test , modelsDir, global_predict
 
 
