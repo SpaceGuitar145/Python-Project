@@ -2,7 +2,6 @@ import sys
 import os
 from functools import partial
 from os.path import expanduser
-from PyQt5 import QtCore
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QMovie, QPixmap, QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QFrame, QLabel, QFileDialog, QTableWidget, \
@@ -23,6 +22,7 @@ class MainWindow(QMainWindow):
         self.movieLabel = QLabel(self)
         self.testStat = QLabel(self)
         self.predictStat = QLabel(self)
+        self.about = QLabel(self)
 
         self.testButton = QPushButton(self)
         self.predictButton = QPushButton(self)
@@ -34,13 +34,14 @@ class MainWindow(QMainWindow):
         self.tableWidget = QTableWidget()
 
         self.modelsDir = os.getcwd() + "/pneumonia/models"
+        self.assetsDir = os.getcwd() + "/assets/"
 
         self.window()
 
     def window(self):
         self.setGeometry(540, 250, 600, 750)
         self.setWindowTitle("Pneumonia Detector")
-        self.setWindowIcon(QIcon("corona.ico"))
+        self.setWindowIcon(QIcon(self.assetsDir + "corona.ico"))
         self.setFixedSize(900, 600)
         self.setStyleSheet("background-color: #3a6186")
         self.sidePanel()
@@ -48,10 +49,11 @@ class MainWindow(QMainWindow):
         self.invokes()
 
     def createUI(self):
-        self.icons(self.virusIco, "corona.png", 50, (10, 50), "background-color: #254059;")
-
+        self.icons(self.virusIco, self.assetsDir + "corona.png", 50, (10, 50), "background-color: #254059;")
+        self.virusIco.show()
         self.labels(self.virusTitle, "Pneumonia\nDetector", (70, 15, 130, 30),
                     QFont("Courier New", 13, weight=QFont.Bold), "background-color: #254059;")
+        self.virusTitle.show()
         self.labels(self.pneumoniaInfo, "Pneumonia is an infection that inflames the air sacs in one or both lungs. The"
                                         " air sacs may fill with fluid or pus (purulent material), causing cough with "
                                         "phlegm or pus, fever, chills, and difficulty breathing. A variety of "
@@ -60,26 +62,40 @@ class MainWindow(QMainWindow):
                                         "serious for infants and young children, people older than age 65, and people "
                                         "with health problems or weakened immune systems.", (10, 90, 190, 310),
                     QFont("Roboto", 10), "background-color: #254059;", Qt.AlignCenter)
+        self.pneumoniaInfo.show()
         self.labels(self.greetings, "Welcome to the pneumonia detector! \n Choose an option and enjoy our app!",
                     (210, 30, 700, 100), QFont("Courier", 15, weight=QFont.Bold), "background-color: #3a6186",
                     Qt.AlignCenter)
+        self.greetings.show()
         self.labels(self.loading, "Loading...", (450, 110, 400, 400), QFont("Courier", 30, weight=QFont.Bold),
                     "background-color: #3a6186", hide=True)
         self.labels(self.testStat, "", (215, 10, 675, 580), QFont("Courier", 30, weight=QFont.Bold),
                     "background-color: #254059", hide=True)
         self.labels(self.predictStat, "", (690, 10, 200, 400), QFont("Courier", 30, weight=QFont.Bold),
                     "background-color: #254059", hide=True)
+        self.labels(self.about, "This app gives only chances of disease, it's not a medical conclusions. If you "
+                                "get more than 35% in case you input a good photo, then you you should see a "
+                                "doctor. If you choose a test option, you must to give a directory which consist "
+                                "of 2 directories,'NORMAL' and 'PNEUMONIA', this command tests the "
+                                "app(works not so fast). To use the predict button you must give a directory "
+                                "consist of '.jpg' or '.jpeg'. The example photos are given below.",
+                    (210, 0, 600, 250), QFont("Courier", 15, weight=QFont.Bold), "background-color: #3a6186",
+                    hide=True)
 
-        self.buttons(self.testButton, "Test", QIcon("test.png"), QSize(32, 32), QFont("Roboto", 15),
+        self.buttons(self.testButton, "Test", QIcon(self.assetsDir + "test.png"), QSize(32, 32), QFont("Roboto", 15),
                      (10, 480, 185, 50), "background-color: #254059;")
-        self.buttons(self.predictButton, "Predict", QIcon("predict.png"), QSize(25, 25), QFont("Roboto", 15),
-                     (10, 420, 185, 50), "background-color: #254059;")
-        self.buttons(self.aboutButton, "About", QIcon("about.png"), QSize(25, 25), QFont("Roboto", 15),
-                     (10, 540, 185, 50), "background-color: #254059;")
-        self.buttons(self.refreshButton, "Refresh", QIcon("refresh.png"), QSize(25, 25), QFont("Roboto", 15),
-                     (10, 540, 185, 50), "background-color: #254059;", hide=True)
+        self.testButton.show()
+        self.buttons(self.predictButton, "Predict", QIcon(self.assetsDir + "predict.png"), QSize(25, 25),
+                     QFont("Roboto", 15), (10, 420, 185, 50), "background-color: #254059;")
+        self.predictButton.show()
+        self.buttons(self.aboutButton, "About", QIcon(self.assetsDir + "about.png"), QSize(25, 25), QFont("Roboto", 15),
+                     (10, 540, 185, 50), "background-color: #254059;", hide=False)
+        self.aboutButton.show()
+        self.buttons(self.refreshButton, "Refresh", QIcon(self.assetsDir + "refresh.png"), QSize(25, 25),
+                     QFont("Roboto", 15), (10, 540, 185, 50), "background-color: #254059;", hide=True)
 
-        self.movieStart(self.movieLabel, self.movie, "neponel.gif", QSize(400, 400), (355, 130, 400, 400))
+        self.movieStart(self.movieLabel, self.movie, self.assetsDir + "neponel.gif", QSize(400, 400),
+                        (355, 130, 400, 400))
 
     def invokes(self):
         self.testButton.clicked.connect(partial(self.buttonClicked, self.testButton))
@@ -128,10 +144,10 @@ class MainWindow(QMainWindow):
         self.testButton.hide()
         self.predictButton.hide()
         self.aboutButton.hide()
-        self.refreshButton.show()
         if buttonObject == self.testButton:
             imagesDir = QFileDialog.getExistingDirectory(self, "Select directory", expanduser("~"),
                                                          QFileDialog.ShowDirsOnly | QFileDialog.DontUseNativeDialog)+"/"
+            self.refreshButton.show()
             self.refreshButton.setEnabled(False)
             self.loading.show()
             self.repaint()
@@ -145,12 +161,14 @@ class MainWindow(QMainWindow):
         elif buttonObject == self.predictButton:
             imagesDir = QFileDialog.getExistingDirectory(self, "Select directory", expanduser("~"),
                                                          QFileDialog.ShowDirsOnly | QFileDialog.DontUseNativeDialog)+"/"
-            self.refreshButton.setEnabled(False)
             self.loading.show()
             self.repaint()
             pd = PneumoniaDetect(self.modelsDir, imagesDir)
             result = pd.modelsPrediction()
             self.tableWidget = QTableWidget()
+            self.tableWidget.setWindowTitle("Pneumonia probability")
+            self.tableWidget.setStyleSheet("background-color: #3a6186")
+            self.tableWidget.setGeometry(745, 250, 695, 600)
             self.tableWidget.setColumnCount(2)
             self.tableWidget.setRowCount(len(result))
 
@@ -160,17 +178,19 @@ class MainWindow(QMainWindow):
                 self.tableWidget.setItem(j, 1, QTableWidgetItem((str(result[i])[:6]) + "%"))
                 j += 1
 
-            self.tableWidget.setMaximumSize(695, 600)
-            self.tableWidget.setMinimumSize(695, 600)
-            self.tableWidget.move(745, 213)
+            self.tableWidget.setHorizontalHeaderLabels(["Image title", "Probability"])
             self.tableWidget.setColumnWidth(0, 300)
             self.tableWidget.setColumnWidth(1, 100)
             self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
             self.tableWidget.show()
+            self.createUI()
+        elif buttonObject == self.aboutButton:
+            self.about.show()
+            self.refreshButton.show()
+            self.refreshButton.setEnabled(False)
+            self.repaint()
             self.refreshButton.setEnabled(True)
             self.repaint()
-        elif buttonObject == self.aboutButton:
-            print("about")
         elif buttonObject == self.refreshButton:
             self.createUI()
 
