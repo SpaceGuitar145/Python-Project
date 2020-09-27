@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 size = 199
 modelsDir = os.getcwd() + "/pneumonia/models/"
 
-# todo train DenseNet201
 
 try:
     sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(log_device_placement=True))
@@ -100,8 +99,3 @@ class PneumoniaDetect:
             imagesStat[i] = np.mean(imagesStat[i]) * 100
 
         return imagesStat
-
-
-# pd = PneumoniaDetect(os.getcwd()+"/pneumonia/models/", os.getcwd()+"/pneumonia/predict/")
-# pd.processingImage(os.getcwd()+"/pneumonia/predict/")
-# print(pd.modelsPrediction())

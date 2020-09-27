@@ -6,7 +6,7 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QMovie, QPixmap, QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QFrame, QLabel, QFileDialog, QTableWidget, \
     QTableWidgetItem, QAbstractItemView
-from pneumoniadetect import PneumoniaDetect
+from pneumoniaDetect import PneumoniaDetect
 
 
 class MainWindow(QMainWindow):
@@ -203,7 +203,8 @@ class MainWindow(QMainWindow):
         movieObject.start()
 
 
-app = QApplication(sys.argv)
-window = MainWindow()
-window.show()
+if __name__ == "__main__":
+	app = QApplication(sys.argv)
+	window = MainWindow()
+	window.show()
 sys.exit(app.exec())
